@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Auth Debug Tool</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #2563eb;
+            margin-top: 0;
+        }
+        .section {
+            margin: 20px 0;
+            padding: 15px;
+            background: #f9fafb;
+            border-left: 4px solid #2563eb;
+            border-radius: 4px;
+        }
+        .section h3 {
+            margin-top: 0;
+            color: #1f2937;
+        }
+        button {
+            background: #2563eb;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            margin: 5px;
+        }
+        button:hover {
+            background: #1d4ed8;
+        }
+        button.danger {
+            background: #dc2626;
+        }
+        button.danger:hover {
+            background: #b91c1c;
+        }
+        pre {
+            background: #1f2937;
+            color: #f3f4f6;
+            padding: 15px;
+            border-radius: 6px;
+            overflow-x: auto;
+            font-size: 13px;
+        }
+        .status {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: bold;
+            margin-left: 10px;
+        }
+        .status.good {
+            background: #dcfce7;
+            color: #166534;
+        }
+        .status.bad {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+        .status.warning {
+            background: #fef3c7;
+            color: #92400e;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔧 GaragePro Auth Debug Tool</h1>
+        <p>Use this tool to debug authentication issues</p>
+
+        <div class="section">
+            <h3>1. Current Auth State</h3>
+            <button onclick="checkAuthState()">Check Auth State</button>
+            <button onclick="checkLocalStorage()">Check localStorage</button>
+            <div id="authState"></div>
+        </div>
+
+        <div class="section">
+            <h3>2. Test Backend Connection</h3>
+            <button onclick="testBackend()">Test Backend API</button>
+            <button onclick="testAuthEndpoint()">Test Auth Endpoint</button>
+            <div id="backendTest"></div>
+        </div>
+
+        <div class="section">
+            <h3>3. Clear Auth Data</h3>
+            <button class="danger" onclick="clearAuth()">Clear All Auth Data</button>
+            <button class="danger" onclick="clearEverything()">Clear Everything & Reload</button>
+            <div id="clearResult"></div>
+        </div>
+
+        <div class="section">
+            <h3>4. Manual Token Test</h3>
+            <p>Paste your access_token here to test it:</p>
+            <textarea id="manualToken" style="width: 100%; height: 100px; font-family: monospace; padding: 10px;" placeholder="Paste token here..."></textarea>
+            <br>
+            <button onclick="testManualToken()">Test This Token</button>
+            <div id="tokenTest"></div>
+        </div>
+    </div>
+
+    <script>
+        const API_URL = 'http://localhost:3000/api/v1';
+
+        function checkAuthState() {
+            const output = document.getElementById('authState');
+            
+            try {
+                // Check Zustand persist storage
+                const authStorage = localStorage.getItem('auth-storage');
+                const accessToken = localStorage.getItem('accessToken');
+                const user = localStorage.getItem('user');
+                
+                let html = '<pre>';
+                
+                // Check accessToken
+                if (accessToken) {
+                    html += '✅ accessToken found in localStorage\n';
+                    html += `   Value: ${accessToken.substring(0, 50)}...\n\n`;
+                } else {
+                    html += '❌ No accessToken in localStorage\n\n';
+                }
+                
+                // Check user
+                if (user) {
+                    html += '✅ user found in localStorage\n';
+                    try {
+                        const userObj = JSON.parse(user);
+                        html += `   User: ${userObj.firstName} ${userObj.lastName} (${userObj.email})\n\n`;
+                    } catch (e) {
+                        html += '   ⚠️ Could not parse user data\n\n';
+                    }
+                } else {
+                    html += '❌ No user in localStorage\n\n';
+                }
+                
+                // Check auth-storage
+                if (authStorage) {
+                    html += '✅ auth-storage found (Zustand persist)\n';
+                    try {
+                        const authObj = JSON.parse(authStorage);
+                        html += `   isAuthenticated: ${authObj.state?.isAuthenticated}\n`;
+                        html += `   Has user: ${!!authObj.state?.user}\n`;
+                        html += `   Has token: ${!!authObj.state?.accessToken}\n\n`;
+                    } catch (e) {
+                        html += '   ⚠️ Could not parse auth-storage\n\n';
+                    }
+                } else {
+                    html += '❌ No auth-storage in localStorage\n\n';
+                }
+                
+                // Overall status
+                const isGood = accessToken && user && authStorage;
+                if (isGood) {
+                    html += '\n✅ AUTH STATUS: GOOD - You should be authenticated';
+                } else {
+                    html += '\n❌ AUTH STATUS: BAD - Authentication data missing';
+                }
+                
+                html += '</pre>';
+                output.innerHTML = html;
+            } catch (error) {
+                output.innerHTML = `<pre>❌ Error: ${error.message}</pre>`;
+            }
+        }
+
+        function checkLocalStorage() {
+            const output = document.getElementById('authState');
+            const keys = Object.keys(localStorage);
+            
+            let html = '<pre>LocalStorage Contents:\n\n';
+            
+            if (keys.length === 0) {
+                html += '❌ localStorage is empty\n';
+            } else {
+                keys.forEach(key => {
+                    const value = localStorage.getItem(key);
+                    html += `${key}:\n`;
+                    if (value.length > 100) {
+                        html += `  ${value.substring(0, 100)}...\n\n`;
+                    } else {
+                        html += `  ${value}\n\n`;
+                    }
+                });
+            }
+            
+            html += '</pre>';
+            output.innerHTML = html;
+        }
+
+        async function testBackend() {
+            const output = document.getElementById('backendTest');
+            output.innerHTML = '<pre>Testing backend connection...</pre>';
+            
+            try {
+                const response = await fetch(`${API_URL}/health`, {
+                    method: 'GET',
+                });
+                
+                if (response.ok) {
+                    output.innerHTML = '<pre>✅ Backend is running on http://localhost:3000</pre>';
+                } else {
+                    output.innerHTML = '<pre>⚠️ Backend responded but with error</pre>';
+                }
+            } catch (error) {
+                output.innerHTML = `<pre>❌ Backend connection failed\nError: ${error.message}\n\nMake sure backend is running:\ncd backend && npm run start:dev</pre>`;
+            }
+        }
+
+        async function testAuthEndpoint() {
+            const output = document.getElementById('backendTest');
+            const token = localStorage.getItem('accessToken');
+            
+            if (!token) {
+                output.innerHTML = '<pre>❌ No token found. Sign in first.</pre>';
+                return;
+            }
+            
+            output.innerHTML = '<pre>Testing /auth/profile endpoint...</pre>';
+            
+            try {
+                const response = await fetch(`${API_URL}/auth/profile`, {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json',
+                    },
+                });
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    output.innerHTML = `<pre>✅ Token is valid!\n\nProfile data:\n${JSON.stringify(data, null, 2)}</pre>`;
+                } else if (response.status === 401) {
+                    output.innerHTML = '<pre>❌ Token is invalid or expired\n\nStatus: 401 Unauthorized\n\nSolution: Clear auth data and sign in again</pre>';
+                } else {
+                    output.innerHTML = `<pre>⚠️ Unexpected response\nStatus: ${response.status}</pre>`;
+                }
+            } catch (error) {
+                output.innerHTML = `<pre>❌ Request failed\nError: ${error.message}</pre>`;
+            }
+        }
+
+        function clearAuth() {
+            const output = document.getElementById('clearResult');
+            
+            localStorage.removeItem('accessToken');
+            localStorage.removeItem('user');
+            localStorage.removeItem('auth-storage');
+            
+            output.innerHTML = '<pre>✅ Auth data cleared!\n\nRemoved:\n- accessToken\n- user\n- auth-storage\n\nYou can now sign in again.</pre>';
+        }
+
+        function clearEverything() {
+            localStorage.clear();
+            sessionStorage.clear();
+            alert('All storage cleared! Page will reload...');
+            location.reload();
+        }
+
+        async function testManualToken() {
+            const output = document.getElementById('tokenTest');
+            const token = document.getElementById('manualToken').value.trim();
+            
+            if (!token) {
+                output.innerHTML = '<pre>❌ Please paste a token first</pre>';
+                return;
+            }
+            
+            output.innerHTML = '<pre>Testing token...</pre>';
+            
+            try {
+                const response = await fetch(`${API_URL}/auth/profile`, {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json',
+                    },
+                });
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    output.innerHTML = `<pre>✅ Token is VALID!\n\nUser data:\n${JSON.stringify(data, null, 2)}\n\nWould you like to save this token?</pre>`;
+                    
+                    if (confirm('Token is valid! Save it to localStorage?')) {
+                        localStorage.setItem('accessToken', token);
+                        localStorage.setItem('user', JSON.stringify(data));
+                        
+                        const authStorage = {
+                            state: {
+                                user: data,
+                                accessToken: token,
+                                isAuthenticated: true
+                            },
+                            version: 0
+                        };
+                        localStorage.setItem('auth-storage', JSON.stringify(authStorage));
+                        
+                        output.innerHTML += '\n\n✅ Token saved! Reload the page.';
+                    }
+                } else if (response.status === 401) {
+                    output.innerHTML = '<pre>❌ Token is INVALID or EXPIRED\n\nStatus: 401 Unauthorized</pre>';
+                } else {
+                    const errorText = await response.text();
+                    output.innerHTML = `<pre>⚠️ Error\nStatus: ${response.status}\nResponse: ${errorText}</pre>`;
+                }
+            } catch (error) {
+                output.innerHTML = `<pre>❌ Request failed\nError: ${error.message}</pre>`;
+            }
+        }
+
+        // Auto-check on load
+        window.onload = () => {
+            checkAuthState();
+        };
+    </script>
+</body>
+</html>
