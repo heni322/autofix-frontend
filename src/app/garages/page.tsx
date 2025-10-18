@@ -254,7 +254,7 @@ export default function GaragesPage() {
             <div className="flex items-center gap-2 pt-4 border-t border-gray-200 flex-wrap">
               <span className="text-sm text-gray-600">Filtres actifs:</span>
               {searchQuery && (
-                <Badge variant="secondary" className="flex items-center gap-1">
+                <Badge variant="default" className="flex items-center gap-1">
                   Recherche: "{searchQuery.slice(0, 20)}{searchQuery.length > 20 ? '...' : ''}"
                   <button
                     onClick={() => handleSearch('')}
@@ -265,7 +265,7 @@ export default function GaragesPage() {
                 </Badge>
               )}
               {selectedCity && (
-                <Badge variant="secondary" className="flex items-center gap-1">
+                <Badge variant="default" className="flex items-center gap-1">
                   Ville: {selectedCity}
                   <button
                     onClick={() => handleCityChange('all')}
@@ -276,7 +276,7 @@ export default function GaragesPage() {
                 </Badge>
               )}
               {selectedCategoryId && (
-                <Badge variant="secondary" className="flex items-center gap-1">
+                <Badge variant="default" className="flex items-center gap-1">
                   Catégorie: {categories?.find(c => c.id === selectedCategoryId)?.name}
                   <button
                     onClick={() => {
@@ -291,7 +291,7 @@ export default function GaragesPage() {
                 </Badge>
               )}
               {selectedServiceId && (
-                <Badge variant="secondary" className="flex items-center gap-1">
+                <Badge variant="default" className="flex items-center gap-1">
                   Service: {availableServices.find(s => s.id === selectedServiceId)?.name}
                   <button
                     onClick={() => {
@@ -305,7 +305,7 @@ export default function GaragesPage() {
                 </Badge>
               )}
               {showVerifiedOnly && (
-                <Badge variant="secondary" className="flex items-center gap-1">
+                <Badge variant="default" className="flex items-center gap-1">
                   <Star className="h-3 w-3 fill-current" />
                   Vérifiés uniquement
                   <button
@@ -483,7 +483,7 @@ const GarageCard: React.FC<GarageCardProps> = ({ garage }) => {
             </CardDescription>
           </div>
           {garage.isVerified && (
-            <Badge variant="secondary" className="flex items-center gap-1">
+            <Badge variant="default" className="flex items-center gap-1">
               <Star className="h-3 w-3 fill-current" />
               Vérifié
             </Badge>
@@ -511,12 +511,12 @@ const GarageCard: React.FC<GarageCardProps> = ({ garage }) => {
             <p className="text-xs text-gray-500 mb-1">Services offerts:</p>
             <div className="flex flex-wrap gap-1">
               {garage.garageServices.slice(0, 3).map((gs: GarageService) => (
-                <Badge key={gs.id} variant="outline" className="text-xs">
+                <Badge key={gs.id} variant="default" className="text-xs">
                   {gs.service?.name}
                 </Badge>
               ))}
               {garage.garageServices.length > 3 && (
-                <Badge variant="outline" className="text-xs">
+                <Badge variant="default" className="text-xs">
                   +{garage.garageServices.length - 3} plus
                 </Badge>
               )}
