@@ -62,7 +62,7 @@ export default function ProfilePage() {
                   <div className="flex items-center justify-between text-sm mb-2">
                     <span className="text-gray-600">Member since</span>
                     <span className="font-medium">
-                      {user?.createdAt && formatDate(user.createdAt, 'MMM yyyy')}
+                      {user?.createdAt && formatDate(user.createdAt)}
                     </span>
                   </div>
                   <div className="flex items-center justify-between text-sm">
