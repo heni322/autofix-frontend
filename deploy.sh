@@ -29,7 +29,7 @@ fi
 # Build Docker image
 echo -e "${YELLOW}📦 Building Docker image...${NC}"
 docker build \
-    --build-arg NEXT_PUBLIC_API_URL="https://backend.prochainconsulting.com/api" \
+    --build-arg NEXT_PUBLIC_API_URL="https://backend.prochainconsulting.com/api/v1" \
     --build-arg NEXT_PUBLIC_APP_NAME="AutoFix - Garage Platform" \
     --build-arg NEXT_PUBLIC_APP_URL="https://autofix.prochainconsulting.com" \
     --build-arg NODE_ENV="production" \
