@@ -55,14 +55,14 @@ export default function GarageServicesManager({ garageId }: GarageServicesManage
         );
       case PricingType.QUOTE:
         return (
-          <Badge variant="secondary">
+          <Badge variant="info">
             <Tag className="h-3 w-3 mr-1" />
             Sur Devis
           </Badge>
         );
       case PricingType.CONSULTATION:
         return (
-          <Badge variant="outline">
+          <Badge variant="info">
             <Users className="h-3 w-3 mr-1" />
             Consultation
           </Badge>
@@ -105,8 +105,8 @@ export default function GarageServicesManager({ garageId }: GarageServicesManage
                     <div className="flex-1">
                       <div className="flex items-center gap-2 mb-2">
                         <h3 className="text-lg font-semibold">{gs.service?.name}</h3>
-                        {gs.service?.category && <Badge variant="outline">{gs.service.category.name}</Badge>}
-                        {!gs.isAvailable && <Badge variant="destructive">Désactivé</Badge>}
+                        {gs.service?.category && <Badge variant="info">{gs.service.category.name}</Badge>}
+                        {!gs.isAvailable && <Badge variant="info">Désactivé</Badge>}
                       </div>
                       {gs.service?.description && <p className="text-sm text-gray-600 mb-3">{gs.service.description}</p>}
                       <div className="flex flex-wrap items-center gap-3">
