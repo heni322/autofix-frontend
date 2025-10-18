@@ -217,7 +217,7 @@ export const GarageSelector: React.FC = () => {
           <div className="flex items-center gap-2 pt-3 border-t border-gray-200 flex-wrap">
             <span className="text-sm text-gray-600">Active filters:</span>
             {searchQuery && (
-              <Badge variant="secondary" className="flex items-center gap-1">
+              <Badge variant="info" className="flex items-center gap-1">
                 Search: "{searchQuery}"
                 <button onClick={() => handleSearch('')} className="ml-1 hover:text-red-600">
                   <X className="h-3 w-3" />
@@ -225,7 +225,7 @@ export const GarageSelector: React.FC = () => {
               </Badge>
             )}
             {searchCity && (
-              <Badge variant="secondary" className="flex items-center gap-1">
+              <Badge variant="info" className="flex items-center gap-1">
                 City: {searchCity}
                 <button onClick={() => handleCityChange('')} className="ml-1 hover:text-red-600">
                   <X className="h-3 w-3" />
@@ -233,7 +233,7 @@ export const GarageSelector: React.FC = () => {
               </Badge>
             )}
             {selectedCategoryId && (
-              <Badge variant="secondary" className="flex items-center gap-1">
+              <Badge variant="info" className="flex items-center gap-1">
                 Category: {categories?.find(c => c.id === selectedCategoryId)?.name}
                 <button onClick={() => {
                   setSelectedCategoryId(undefined);
@@ -245,7 +245,7 @@ export const GarageSelector: React.FC = () => {
               </Badge>
             )}
             {selectedServiceId && (
-              <Badge variant="secondary" className="flex items-center gap-1">
+              <Badge variant="info" className="flex items-center gap-1">
                 Service: {availableServices.find(s => s.id === selectedServiceId)?.name}
                 <button onClick={() => {
                   setSelectedServiceId(undefined);
@@ -256,7 +256,7 @@ export const GarageSelector: React.FC = () => {
               </Badge>
             )}
             {showVerifiedOnly && (
-              <Badge variant="secondary" className="flex items-center gap-1">
+              <Badge variant="info" className="flex items-center gap-1">
                 <Star className="h-3 w-3 fill-current" />
                 Verified Only
                 <button onClick={() => {
@@ -314,7 +314,7 @@ export const GarageSelector: React.FC = () => {
                       </CardDescription>
                     </div>
                     {garage.isVerified && (
-                      <Badge variant="secondary" className="flex items-center gap-1">
+                      <Badge variant="success" className="flex items-center gap-1">
                         <Star className="h-3 w-3 fill-current" />
                         Verified
                       </Badge>
@@ -337,12 +337,12 @@ export const GarageSelector: React.FC = () => {
                       <p className="text-xs text-gray-500 mb-1">Available services:</p>
                       <div className="flex flex-wrap gap-1">
                         {garage.garageServices.slice(0, 3).map((gs: GarageService) => (
-                          <Badge key={gs.id} variant="outline" className="text-xs">
+                          <Badge key={gs.id} variant="default" className="text-xs">
                             {gs.service?.name}
                           </Badge>
                         ))}
                         {garage.garageServices.length > 3 && (
-                          <Badge variant="outline" className="text-xs">
+                          <Badge variant="default" className="text-xs">
                             +{garage.garageServices.length - 3} more
                           </Badge>
                         )}
